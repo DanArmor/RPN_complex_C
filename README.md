@@ -1,2 +1,2 @@
 # RPN_complex_C
-RPN calculator for complex nums
+Си-версия [этого калькулятора](https://github.com/DanArmor/RPN_complex_PASCAL). Там же находится описание принципов работы.
