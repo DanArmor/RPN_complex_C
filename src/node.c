@@ -2,7 +2,10 @@
 #include "node.h"
 
 Node *new_node(){
-    return (Node*)calloc(1, sizeof(Node));
+    Node *p_node = (Node*)calloc(1, sizeof(Node));
+    p_node->data = NULL;
+    p_node->link = NULL;
+    return p_node;
 }
 
 Node *pack_data(void *p_data){
