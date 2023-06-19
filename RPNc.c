@@ -339,7 +339,7 @@ void read_variables(Calculated_RPN_express *expres){
         Variable *p = slctr_take(&p_node);
         printf("Enter values of %s: ", p->name);
         char s[256];
-        gets(s);
+        fgets(s, 256, stdin);
         Complex *p_complex = p->value;
         *p_complex = construct_complex(s);
     } while (p_node != NULL);
@@ -453,7 +453,7 @@ int is_have_vars(Calculated_RPN_express *expres){
 int main(void){
     RPN_express expres;
     char s[256] = "";
-    gets(s);
+    fgets(s, 256, stdin);
     trans_expression_to_RPN(&expres, s);
     puts(expres.expres);
     Calculated_RPN_express RPN = string_into_calculated(expres.expres);
