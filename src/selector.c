@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "head/selector.h" //FIXME: HEADER
+#include "selector.h"
 
 void *slctr_take(Node **p_selector){
     Node *p_node = *p_selector;

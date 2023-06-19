@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "head/node.h"
+#include "node.h"
 
 Node *new_node(){
     return (Node*)calloc(1, sizeof(Node));

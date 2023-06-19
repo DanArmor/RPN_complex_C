@@ -5,10 +5,10 @@
 
 #define SQR(x) ((x)*(x))
 
-#include "head/node.h"     
-#include "head/stack.h"    
-#include "head/list.h"
-#include "head/selector.h" 
+#include "node.h"     
+#include "stack.h"    
+#include "list.h"
+#include "selector.h" 
 
 typedef struct complex{
     float re;

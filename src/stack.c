@@ -1,4 +1,4 @@
-#include "head/stack.h"
+#include "stack.h"
 
 void stk_push(Stack *p_stack, void *p_data){
     Node *p_node = pack_data(p_data);
