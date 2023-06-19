@@ -188,7 +188,7 @@ char *take_variable_name_from_node(Node *p_node){
 }
 
 int is_variable_in_list(List *list, char *name, int *p_i){
-    Node *p_node = list_take_start(list);
+    Node *p_node = list_start(list);
     *p_i = 0;
     while(p_node != NULL && strcmp(take_variable_name_from_node(p_node), name) != 0){
         *p_i += 1;
@@ -307,7 +307,7 @@ void update_list_of_variables(List *list, Variable *p_var){
     int i = 0;
     Variable *p_main;
     if(is_variable_in_list(list, p_var->name, &i)){
-        p_main = list_take_by_num(list, i);
+        p_main = list_take_by_index(list, i);
         add_link_to_variable(p_main, p_var);
     } else{
         p_main = create_variable_main(p_var);
@@ -334,7 +334,7 @@ Calculated_RPN_express string_into_calculated(char *s){
 }
 
 void read_variables(Calculated_RPN_express *expres){
-    Node *p_node = list_take_start(&expres->variables);
+    Node *p_node = list_start(&expres->variables);
     do{
         Variable *p = slctr_take(&p_node);
         printf("Enter values of %s: ", p->name);
@@ -436,7 +436,7 @@ char *calculate_expres(Calculated_RPN_express *expres){
     static char r[1024] = "";
     r[0] = '\0';
     Node *p_node = (Node*)calloc(1, sizeof(Node));
-    *p_node = *list_take_start(&expres->express);
+    *p_node = *list_start(&expres->express);
     do{
         Cell *p_cell = slctr_take(&p_node);
         process_cell(expres, p_cell);
