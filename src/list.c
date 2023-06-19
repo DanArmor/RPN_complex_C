@@ -14,7 +14,7 @@ Node *list_start(List *p_list){
 }
 
 void list_push(List *p_list, void *p_data){
-    Node *p_node = pack_data(p_data);
+    Node *p_node = own_data(p_data);
     if(p_list->start == NULL){
         p_list->start = p_node;
     } else{

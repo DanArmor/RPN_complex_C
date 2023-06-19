@@ -26,5 +26,9 @@ add_executable(main src/RPNc.c)
 target_link_libraries(main list stack selector node -lm)
 
 # Тесты
+# Список
 add_executable(list_test src/test/list_test.c)
 target_link_libraries(list_test list node -lcriterion)
+# Узел
+add_executable(node_test src/test/node_test.c)
+target_link_libraries(node_test node -lcriterion)
