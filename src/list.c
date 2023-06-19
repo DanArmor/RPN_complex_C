@@ -1,6 +1,14 @@
 #include <stdlib.h>
 #include "list.h"
 
+void list_init(List *p_list){
+    p_list->start = NULL;
+}
+
+int list_is_empty(List *p_list){
+    return p_list->start == NULL;
+}
+
 Node *lst_take_start(List *p_list){
     return p_list->start;
 }

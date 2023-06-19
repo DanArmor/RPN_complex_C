@@ -36,3 +36,5 @@
 
 **/CMakeFiles
 **/build
+**/populate
+**/criterion

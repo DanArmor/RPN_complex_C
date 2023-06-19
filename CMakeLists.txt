@@ -4,8 +4,14 @@ project(RPN_COMPLEX_C)
 
 set(CMAKE_C_STANDARD 11)
 
+# Инклуд директория для всех модулей
 include_directories(include)
 
+# Для тестов, библиотека Criterion
+include_directories(criterion/include)
+link_directories(criterion/lib)
+
+# Модули
 add_library(node src/node.c)
 add_library(list src/list.c)
 add_library(selector src/selector.c)
@@ -14,5 +20,11 @@ add_library(stack src/stack.c)
 target_link_libraries(list node)
 target_link_libraries(stack node)
 target_link_libraries(selector node)
+
+# Основная программа
 add_executable(main src/RPNc.c)
 target_link_libraries(main list stack selector node -lm)
+
+# Тесты
+add_executable(list_test src/test/list_test.c)
+target_link_libraries(list_test list node -lcriterion)
