@@ -8,7 +8,6 @@
 #include "node.h"     
 #include "stack.h"    
 #include "list.h"
-#include "selector.h" 
 
 typedef struct complex{
     float re;
@@ -311,7 +310,7 @@ void update_list_of_variables(List *list, Variable *p_var){
         add_link_to_variable(p_main, p_var);
     } else{
         p_main = create_variable_main(p_var);
-        list_push(list, p_main);
+        list_push_own(list, p_main);
     }
 }
 
@@ -326,7 +325,7 @@ Calculated_RPN_express string_into_calculated(char *s){
         Cell *cell = (Cell*)calloc(1, sizeof(cell));
         strcat(cell->type, cell_type(part));
         create_data_cell(cell, part);
-        list_push(&expres.express, cell);
+        list_push_own(&expres.express, cell);
         if(strcmp(cell->type, "var") == 0)
             update_list_of_variables(&expres.variables, cell->data);
     }
@@ -336,7 +335,7 @@ Calculated_RPN_express string_into_calculated(char *s){
 void read_variables(Calculated_RPN_express *expres){
     Node *p_node = list_start(&expres->variables);
     do{
-        Variable *p = slctr_take(&p_node);
+        Variable *p = list_iter_next(&p_node);
         printf("Enter values of %s: ", p->name);
         char s[256];
         fgets(s, 256, stdin);
@@ -415,7 +414,7 @@ void process_operator(Calculated_RPN_express *expres, char *opr_s){
     else if(strcmp(opr_s, "ln") == 0)
         *pr = natural_log(*(Complex*)p1);
     stk_push(&expres->st, pr);
-    list_push(&expres->inter_res, pr);
+    list_push_own(&expres->inter_res, pr);
 }
 
 void *take_var_value_from_cell(Cell *cell){
@@ -438,7 +437,7 @@ char *calculate_expres(Calculated_RPN_express *expres){
     Node *p_node = (Node*)calloc(1, sizeof(Node));
     *p_node = *list_start(&expres->express);
     do{
-        Cell *p_cell = slctr_take(&p_node);
+        Cell *p_cell = list_iter_next(&p_node);
         process_cell(expres, p_cell);
     } while (p_node != NULL);
     strcat(r, complex_to_string(expres->st.top->data));

@@ -13,8 +13,7 @@ Node *list_start(List *p_list){
     return p_list->start;
 }
 
-void list_push(List *p_list, void *p_data){
-    Node *p_node = own_data(p_data);
+void list_connect_node(List *p_list, Node *p_node) {
     if(p_list->start == NULL){
         p_list->start = p_node;
     } else{
@@ -22,7 +21,22 @@ void list_push(List *p_list, void *p_data){
         while(p_support->link != NULL)
             p_support = p_support->link;
         p_support->link = p_node;
-    }
+    }    
+}
+
+void list_push_copy(List *p_list, void *p_data, int size) {
+    Node *p_node = copy_data(p_data, size);
+    list_connect_node(p_list, p_node);    
+} 
+
+void list_push_own(List *p_list, void *p_data){
+    Node *p_node = own_data(p_data);
+    list_connect_node(p_list, p_node);
+}
+
+void list_push_ref(List *p_list, void *p_data){
+    Node *p_node = ref_data(p_data);
+    list_connect_node(p_list, p_node);
 }
 
 void *list_pop_front(List *p_list){
@@ -32,16 +46,24 @@ void *list_pop_front(List *p_list){
 }
 
 void list_clear(List *p_list){
-    while(p_list->start != NULL)
-        free(list_pop_front(p_list));
+    while(p_list->start != NULL){
+        Node *p_node = p_list->start;
+        p_list->start = p_node->link;
+        destroy_node(p_node);
+    }
+    p_list->start = NULL;
 }
 
 void *list_take_by_index(List *p_list, int index){
-    int i = 0;
-    Node *p_node = p_list->start;
-    while(i < index){
+    Node *p_node = p_node->link;
+    for(int i = 0; i < index; i++){
         p_node = p_node->link;
-        i++;
     }
+    return p_node->data;
+}
+
+void *list_iter_next(Node **p_iter){
+    Node *p_node = *p_iter;
+    *p_iter = p_node->link;
     return p_node->data;
 }
