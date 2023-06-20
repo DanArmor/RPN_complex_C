@@ -30,6 +30,14 @@ void *unpack_data(Node *p_node){
     return p_data;
 }
 
+int node_is_ref(Node *p_node){
+    return p_node->type == NODE_REF;
+}
+
+int node_is_own(Node *p_node){
+    return !node_is_ref(p_node);
+}
+
 Node *ref_data(void *p_data){
     Node *p_node = new_node();
     p_node->type = NODE_REF;
