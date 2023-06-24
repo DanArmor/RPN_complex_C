@@ -1,7 +1,6 @@
 # RPN_complex_C
 Си-версия [этого калькулятора](https://github.com/DanArmor/RPN_complex_PASCAL). Там же находится описание принципов работы.
 
-  * Основной файл: RPNc
 
 ## Компиляция:
-` gcc RPNc.c node.c selector.c stack.c list.c -o RPNc`
+Воспользуйтесь самостоятельно `CMake` или заготовленным скриптом для сборки на Linux:`build.sh`
