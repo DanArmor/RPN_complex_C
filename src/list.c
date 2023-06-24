@@ -18,8 +18,9 @@ void list_connect_node(List *p_list, Node *p_node) {
         p_list->start = p_node;
     } else{
         Node *p_support = list_start(p_list);
-        while(p_support->link != NULL)
+        while(p_support->link != NULL){
             p_support = p_support->link;
+        }
         p_support->link = p_node;
     }    
 }
