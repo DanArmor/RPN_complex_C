@@ -10,7 +10,7 @@
 #include "list.h"
 #include "utils.h"
 
-#include "RPN.h"
+#include "rpn.h"
 
 typedef struct complex{
     float re;
@@ -38,27 +38,6 @@ typedef struct calculated_RPN_express{
 
 extern t_operators_table OPERATORS;
 extern t_array_of_numerals_chars NUMERALS;
-
-int num_of_operator(char *opr_str){
-    int num = 0;
-    while(num < NUM_OF_OP && strcmp(opr_str, OPERATORS.op_s[num]) != 0)
-        num += 1;
-    if(num == NUM_OF_OP)
-        num = -1;
-    return num;
-}
-
-int ch_is_num(char c){
-    int i = 0;
-    int n = AMOUNT_OF_NUMERALS - 1;
-    while(i < n && NUMERALS[i] != c)
-        i++;
-    return c == NUMERALS[i];
-}
-
-int is_const(char *s){
-    return ch_is_num(s[0]);
-}
 
 void init_calc_express(Calculated_RPN_express *expres){
     expres->express.start = NULL;
@@ -138,7 +117,7 @@ void form_con_cell(Cell *p_cell, char *s){
 }
 
 void form_opr_cell(Cell *p_cell, char *s){
-    p_cell->data = &OPERATORS.op_s[num_of_operator(s)];
+    p_cell->data = &OPERATORS.operator_str[operator_num_by_str(s)];
 }
 
 void create_data_cell(Cell *p_cell, char *s){
@@ -154,7 +133,7 @@ void create_data_cell(Cell *p_cell, char *s){
 char *cell_type(char *s){
     static char r[256] = "";
     r[0] = '\0';
-    if(num_of_operator(s) == -1){
+    if(operator_num_by_str(s) == -1){
         if(is_const(s)){
             strcat(r, "con");
         } else{
@@ -330,9 +309,9 @@ int is_have_vars(Calculated_RPN_express *expres){
 int main(void){
     char s[256] = "";
     fgets(s, 256, stdin);
-    RPN_express expres = RPN_from_str(s);
-    puts(expres.expres);
-    Calculated_RPN_express RPN = string_into_calculated(expres.expres);
+    RPN_express rpn = rpn_from_str(s);
+    puts(rpn.expression);
+    Calculated_RPN_express RPN = string_into_calculated(rpn.expression);
     if(is_have_vars(&RPN)){
         while(1){
             read_variables(&RPN);

@@ -5,11 +5,11 @@
 #include "utils.h"
 
 typedef struct RPN_express{
-    String expres;
-    Stack st; 
+    String expression;
+    Stack stack; 
 } RPN_express;
 
-void init_express(RPN_express *expres);
-RPN_express RPN_from_str(char *s);
+void init_rpn(RPN_express *expres);
+RPN_express rpn_from_str(char *s);
 
 #endif
