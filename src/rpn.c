@@ -6,25 +6,28 @@ extern t_operators_table OPERATORS;
 extern t_array_of_numerals_chars NUMERALS;
 
 static char *get_word(char *s, int *word_begin_index) {
-    static char buff[1024] = "";
-    int len = strlen(s);
-    while (s[*word_begin_index] <= ' ' && *word_begin_index < len)
+    static char word[1024] = "";
+    int s_len = strlen(s);
+    while (s[*word_begin_index] <= ' ' && *word_begin_index < s_len){
         *word_begin_index += 1;
-    buff[0] = '\0';
-    int j = 0;
-    while (s[*word_begin_index] > ' ' && *word_begin_index < len) {
-        buff[j] = s[*word_begin_index];
-        *word_begin_index += 1;
-        j += 1;
     }
-    buff[j] = '\0';
-    return buff;
+    word[0] = '\0';
+    int word_end = 0;
+    while (s[*word_begin_index] > ' ' && *word_begin_index < s_len) {
+        word[word_end] = s[*word_begin_index];
+        *word_begin_index += 1;
+        word_end += 1;
+    }
+    word[word_end] = '\0';
+    return word;
 }
 
 static int count_words(char *s) {
     int words_amount = 0;
     int word_begin = 0;
-    while (strlen(get_word(s, &word_begin)) != 0) words_amount += 1;
+    while (strlen(get_word(s, &word_begin)) != 0){
+        words_amount += 1;
+    }
     return words_amount;
 }
 
@@ -62,8 +65,9 @@ static int operator_priority_compare(int left_operator_number, int right_operato
 
 // Возвращает номер унарной версии оператора, если он унарный
 static int binary_to_unary(int operator_number) {
-    if (strcmp(OPERATORS.operator_str[operator_number], "-") == 0)
+    if (strcmp(OPERATORS.operator_str[operator_number], "-") == 0){
         return operator_number + 1;
+    }
     return operator_number;
 }
 

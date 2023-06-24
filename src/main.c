@@ -18,10 +18,10 @@ typedef struct complex {
     float im;
 } Complex;
 
-typedef char Tname[3];
+typedef char TypeName[3];
 
 typedef struct cell {
-    Tname type;
+    TypeName type;
     void *data;
 } Cell;
 
@@ -30,7 +30,7 @@ typedef struct variable {
     void *value;
 } Variable;
 
-typedef struct calculated_RPN_express {
+typedef struct evaluable_expression {
     List cells;
     List variables;
     List inter_res;

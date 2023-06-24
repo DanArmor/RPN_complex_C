@@ -17,6 +17,7 @@ add_library(list src/list.c)
 add_library(stack src/stack.c)
 add_library(rpn src/rpn.c)
 add_library(utils src/utils.c)
+add_library(eval src/eval.c)
 
 target_link_libraries(list node)
 target_link_libraries(stack node)
