@@ -5,6 +5,10 @@
 extern t_operators_table OPERATORS;
 extern t_array_of_numerals_chars NUMERALS;
 
+int is_have_vars(EvaluableExpression *eval) {
+    return !list_is_empty(&eval->variables);
+}
+
 void init_evaluable_expression(EvaluableExpression *eval) {
     list_init(&eval->cells);
     list_init(&eval->inter_res);
@@ -169,6 +173,19 @@ EvaluableExpression evaluable_from_str(char *s) {
     return eval;
 }
 
+int get_variables_amount(EvaluableExpression *eval) {
+    if(!is_have_vars(eval)){
+        return 0;
+    }
+    Node *p_node = list_start(&eval->variables);
+    int amount = 0;
+    do {
+        Variable *p = list_iter_next(&p_node);
+        amount++;
+    } while (p_node != NULL);  
+    return amount;  
+}
+
 void read_variables(EvaluableExpression *eval, char **s) {
     Node *p_node = list_start(&eval->variables);
     do {
@@ -218,8 +235,4 @@ char *calculate_expres(EvaluableExpression *eval) {
     strcat(r, complex_to_string(eval->st.top->data));
     list_clear(&eval->inter_res);
     return r;
-}
-
-int is_have_vars(EvaluableExpression *eval) {
-    return !list_is_empty(&eval->variables);
 }

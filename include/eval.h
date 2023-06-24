@@ -28,6 +28,8 @@ typedef struct evaluable_expression {
 EvaluableExpression evaluable_from_str(char *s);
 void read_variables(EvaluableExpression *eval, char **s);
 char *calculate_expres(EvaluableExpression *eval);
+int get_variables_amount(EvaluableExpression *eval);
+int is_have_vars(EvaluableExpression *eval);
 
 
 #endif

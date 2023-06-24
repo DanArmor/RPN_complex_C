@@ -55,7 +55,7 @@ void list_clear(List *p_list){
 }
 
 void *list_take_by_index(List *p_list, int index){
-    Node *p_node = p_node->link;
+    Node *p_node = p_list->start;
     for(int i = 0; i < index; i++){
         p_node = p_node->link;
     }

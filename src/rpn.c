@@ -99,3 +99,8 @@ RPN_express rpn_from_str(char *s) {
     str_into_rpn(&rpn, s);
     return rpn;
 }
+
+void rpn_str_from_str(char *dst, char *src){
+    RPN_express rpn = rpn_from_str(src);
+    strcpy(dst, rpn.expression);
+}
