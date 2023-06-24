@@ -15,12 +15,16 @@ link_directories(criterion/lib)
 add_library(node src/node.c)
 add_library(list src/list.c)
 add_library(stack src/stack.c)
+add_library(RPN src/RPN.c)
+add_library(utils src/utils.c)
 
 target_link_libraries(list node)
 target_link_libraries(stack node)
 
+target_link_libraries(RPN utils)
+
 # Основная программа
-add_executable(main src/RPNc.c)
+add_executable(main src/main.c)
 target_link_libraries(main list stack node -lm)
 
 # Тесты
