@@ -31,7 +31,7 @@ typedef struct variable {
 } Variable;
 
 typedef struct calculated_RPN_express {
-    List express;
+    List cells;
     List variables;
     List inter_res;
     Stack st;
@@ -41,7 +41,7 @@ extern t_operators_table OPERATORS;
 extern t_array_of_numerals_chars NUMERALS;
 
 void init_evaluable_expression(EvaluableExpression *eval) {
-    list_init(&eval->express);
+    list_init(&eval->cells);
     list_init(&eval->inter_res);
     list_init(&eval->variables);
     stk_init(&eval->st);
@@ -184,7 +184,7 @@ EvaluableExpression evaluable_from_str(char *s) {
         Cell *cell = (Cell *)calloc(1, sizeof(cell));
         strcat(cell->type, cell_type(part));
         create_data_cell(cell, part);
-        list_push_own(&eval.express, cell);
+        list_push_own(&eval.cells, cell);
         if (strcmp(cell->type, "var") == 0)
             update_list_of_variables(&eval.variables, cell->data);
     }
@@ -310,7 +310,7 @@ char *calculate_expres(EvaluableExpression *eval) {
     static char r[1024] = "";
     r[0] = '\0';
     Node *p_node = (Node *)calloc(1, sizeof(Node));
-    *p_node = *list_start(&eval->express);
+    *p_node = *list_start(&eval->cells);
     do {
         Cell *p_cell = list_iter_next(&p_node);
         process_cell(eval, p_cell);
