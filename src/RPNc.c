@@ -100,14 +100,14 @@ int pri_comp(int i, int j){
 
 void init_express(RPN_express *expres){
     expres->expres[0] = '\0';
-    expres->st.top = NULL;
+    stk_init(&expres->st);
 }
 
 void init_calc_express(Calculated_RPN_express *expres){
     expres->express.start = NULL;
-    expres->inter_res.start = NULL;
-    expres->st.top = NULL;
-    expres->variables.start = NULL;
+    list_init(&expres->inter_res);
+    list_init(&expres->variables);
+    stk_init(&expres->st);
 }
 
 void pop_operators(RPN_express *expres, int op_n){

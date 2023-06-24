@@ -1,4 +1,9 @@
 #include "stack.h"
+#include <stdlib.h>
+
+void stk_init(Stack *p_stack) {
+    p_stack->top = NULL;
+}
 
 void stk_push(Stack *p_stack, void *p_data){
     Node *p_node = ref_data(p_data);
