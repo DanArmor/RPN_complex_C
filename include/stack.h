@@ -8,6 +8,9 @@ typedef struct stack{
 
 void stk_push(Stack *p_stack, void *p_data);
 void *stk_pop(Stack *p_stack);
+void stk_init(Stack *p_stack);
+int stk_is_empty(Stack *p_stack);
+void *stk_pick(Stack *p_stack);
 
 
 #endif
