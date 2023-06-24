@@ -34,12 +34,12 @@ typedef struct calculated_RPN_express{
     List variables;
     List inter_res;
     Stack st;
-} Calculated_RPN_express;
+} EvaluableExpression;
 
 extern t_operators_table OPERATORS;
 extern t_array_of_numerals_chars NUMERALS;
 
-void init_calc_express(Calculated_RPN_express *expres){
+void init_calc_express(EvaluableExpression *expres){
     expres->express.start = NULL;
     list_init(&expres->inter_res);
     list_init(&expres->variables);
@@ -171,8 +171,8 @@ void update_list_of_variables(List *list, Variable *p_var){
     }
 }
 
-Calculated_RPN_express string_into_calculated(char *s){
-    Calculated_RPN_express expres;
+EvaluableExpression string_into_calculated(char *s){
+    EvaluableExpression expres;
     init_calc_express(&expres);
     int j = 0;
     int len = count_words(s);
@@ -189,7 +189,7 @@ Calculated_RPN_express string_into_calculated(char *s){
     return expres;
 }
 
-void read_variables(Calculated_RPN_express *expres){
+void read_variables(EvaluableExpression *expres){
     Node *p_node = list_start(&expres->variables);
     do{
         Variable *p = list_iter_next(&p_node);
@@ -253,7 +253,7 @@ char *complex_to_string(void *p){
     return r;
 }
 
-void process_operator(Calculated_RPN_express *expres, char *opr_s){
+void process_operator(EvaluableExpression *expres, char *opr_s){
     Complex *pr;
     void *p1 = NULL, *p2 = NULL;
     pr = (Complex*)calloc(1, sizeof(Complex));
@@ -279,7 +279,7 @@ void *take_var_value_from_cell(Cell *cell){
     return p_var->value; 
 }
 
-void process_cell(Calculated_RPN_express *expres, Cell *cell){
+void process_cell(EvaluableExpression *expres, Cell *cell){
     if(strcmp(cell->type, "opr") == 0)
         process_operator(expres, cell->data);
     else if(strcmp(cell->type, "con") == 0)
@@ -288,7 +288,7 @@ void process_cell(Calculated_RPN_express *expres, Cell *cell){
         stk_push(&expres->st, take_var_value_from_cell(cell));
 }
 
-char *calculate_expres(Calculated_RPN_express *expres){
+char *calculate_expres(EvaluableExpression *expres){
     static char r[1024] = "";
     r[0] = '\0';
     Node *p_node = (Node*)calloc(1, sizeof(Node));
@@ -302,7 +302,7 @@ char *calculate_expres(Calculated_RPN_express *expres){
     return r;
 }
 
-int is_have_vars(Calculated_RPN_express *expres){
+int is_have_vars(EvaluableExpression *expres){
     return expres->variables.start != NULL;
 }
 
@@ -311,7 +311,7 @@ int main(void){
     fgets(s, 256, stdin);
     RPN_express rpn = rpn_from_str(s);
     puts(rpn.expression);
-    Calculated_RPN_express RPN = string_into_calculated(rpn.expression);
+    EvaluableExpression RPN = string_into_calculated(rpn.expression);
     if(is_have_vars(&RPN)){
         while(1){
             read_variables(&RPN);
