@@ -1,35 +1,36 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#define SQR(x) ((x)*(x))
+#define SQR(x) ((x) * (x))
 
-#include "node.h"     
-#include "stack.h"    
+#include <assert.h>
+
 #include "list.h"
+#include "node.h"
+#include "rpn.h"
+#include "stack.h"
 #include "utils.h"
 
-#include "rpn.h"
-
-typedef struct complex{
+typedef struct complex {
     float re;
     float im;
 } Complex;
 
 typedef char Tname[3];
 
-typedef struct cell{
+typedef struct cell {
     Tname type;
     void *data;
 } Cell;
 
-typedef struct variable{
+typedef struct variable {
     String name;
     void *value;
 } Variable;
 
-typedef struct calculated_RPN_express{
+typedef struct calculated_RPN_express {
     List express;
     List variables;
     List inter_res;
@@ -39,39 +40,40 @@ typedef struct calculated_RPN_express{
 extern t_operators_table OPERATORS;
 extern t_array_of_numerals_chars NUMERALS;
 
-void init_evaluable_expression(EvaluableExpression *eval){
+void init_evaluable_expression(EvaluableExpression *eval) {
     list_init(&eval->express);
     list_init(&eval->inter_res);
     list_init(&eval->variables);
     stk_init(&eval->st);
 }
 
-char *variable_name_from_node(Node *p_node){
+char *variable_name_from_node(Node *p_node) {
     Variable *p = p_node->data;
     return p->name;
 }
 
-int is_variable_in_list(List *list, char *variable_name, int *p_index){
+int is_variable_in_list(List *list, char *variable_name, int *p_index) {
     Node *p_node = list_start(list);
     *p_index = 0;
-    while(p_node != NULL && strcmp(variable_name_from_node(p_node), variable_name) != 0){
+    while (p_node != NULL &&
+           strcmp(variable_name_from_node(p_node), variable_name) != 0) {
         *p_index += 1;
         p_node = p_node->link;
     }
     return p_node != NULL;
 }
 
-char *extract_real_from_str(char *s, int *p_real){
+char *extract_real_from_str(char *s, int *p_real) {
     int len = strlen(s);
     static char r[256] = "";
     r[0] = '\0';
     int j = 0;
-    while(*p_real < len && s[*p_real] != '+' && s[*p_real] != '-'){
+    while (*p_real < len && s[*p_real] != '+' && s[*p_real] != '-') {
         r[j] = s[*p_real];
         j += 1;
         *p_real += 1;
     }
-    if(s[*p_real - 1] == 'i'){
+    if (s[*p_real - 1] == 'i') {
         *p_real = 0;
         r[0] = '0';
         r[1] = '\0';
@@ -79,24 +81,24 @@ char *extract_real_from_str(char *s, int *p_real){
     return r;
 }
 
-char *extract_imaginary_from_str(char *s, int *p_imaginary){
+char *extract_imaginary_from_str(char *s, int *p_imaginary) {
     int len = strlen(s);
     static char r[256] = "";
     r[0] = '\0';
     int j = 0;
-    while(*p_imaginary < (len - 1)){
+    while (*p_imaginary < (len - 1)) {
         r[j] = s[*p_imaginary];
         j += 1;
         *p_imaginary += 1;
     }
-    if(r[0] == '\0'){
+    if (r[0] == '\0') {
         r[0] = '0';
         r[1] = '\0';
     }
     return r;
 }
 
-Complex complex_from_str(char *s){
+Complex complex_from_str(char *s) {
     int i = 0;
     float re = strtof(extract_real_from_str(s, &i), NULL);
     float im = strtof(extract_imaginary_from_str(s, &i), NULL);
@@ -104,54 +106,54 @@ Complex complex_from_str(char *s){
     return comp;
 }
 
-void form_var_cell(Cell *p_cell, char *name){
-    Variable *p_var = (Variable*)calloc(1, sizeof(Variable));
+void form_var_cell(Cell *p_cell, char *name) {
+    Variable *p_var = (Variable *)calloc(1, sizeof(Variable));
     strcat(p_var->name, name);
     p_cell->data = p_var;
 }
 
-void form_con_cell(Cell *p_cell, char *s){
-    Complex *p_complex = (Complex*)calloc(1, sizeof(Complex));
+void form_con_cell(Cell *p_cell, char *s) {
+    Complex *p_complex = (Complex *)calloc(1, sizeof(Complex));
     *p_complex = complex_from_str(s);
     p_cell->data = p_complex;
 }
 
-void form_opr_cell(Cell *p_cell, char *s){
+void form_opr_cell(Cell *p_cell, char *s) {
     p_cell->data = &OPERATORS.operator_str[operator_num_by_str(s)];
 }
 
-void create_data_cell(Cell *p_cell, char *s){
-    if(strcmp(p_cell->type, "var") == 0){
+void create_data_cell(Cell *p_cell, char *s) {
+    if (strcmp(p_cell->type, "var") == 0) {
         form_var_cell(p_cell, s);
-    } else if(strcmp(p_cell->type, "con") == 0){
+    } else if (strcmp(p_cell->type, "con") == 0) {
         form_con_cell(p_cell, s);
-    } else if(strcmp(p_cell->type, "opr") == 0){
+    } else if (strcmp(p_cell->type, "opr") == 0) {
         form_opr_cell(p_cell, s);
     }
 }
 
-char *cell_type(char *s){
+char *cell_type(char *s) {
     static char r[256] = "";
     r[0] = '\0';
-    if(operator_num_by_str(s) == -1){
-        if(is_const(s)){
+    if (operator_num_by_str(s) == -1) {
+        if (is_const(s)) {
             strcat(r, "con");
-        } else{
+        } else {
             strcat(r, "var");
         }
-    } else{
+    } else {
         strcat(r, "opr");
     }
     return r;
 }
 
-void add_link_to_variable(Variable *p_main, Variable *p_var){
+void add_link_to_variable(Variable *p_main, Variable *p_var) {
     p_var->value = p_main->value;
 }
 
-Variable *create_variable_main(Variable *p_var){
-    Variable *p_main = (Variable*)calloc(1, sizeof(Variable));
-    Complex *p_complex = (Complex*)calloc(1, sizeof(Complex));
+Variable *create_variable_main(Variable *p_var) {
+    Variable *p_main = (Variable *)calloc(1, sizeof(Variable));
+    Complex *p_complex = (Complex *)calloc(1, sizeof(Complex));
     p_main->value = p_complex;
     p_var->value = p_complex;
     p_main->name[0] = '\0';
@@ -159,19 +161,19 @@ Variable *create_variable_main(Variable *p_var){
     return p_main;
 }
 
-void update_list_of_variables(List *list, Variable *p_var){
+void update_list_of_variables(List *list, Variable *p_var) {
     int i = 0;
     Variable *p_main;
-    if(is_variable_in_list(list, p_var->name, &i)){
+    if (is_variable_in_list(list, p_var->name, &i)) {
         p_main = list_take_by_index(list, i);
         add_link_to_variable(p_main, p_var);
-    } else{
+    } else {
         p_main = create_variable_main(p_var);
         list_push_own(list, p_main);
     }
 }
 
-EvaluableExpression evaluable_from_str(char *s){
+EvaluableExpression evaluable_from_str(char *s) {
     EvaluableExpression eval;
     init_evaluable_expression(&eval);
     int j = 0;
@@ -179,19 +181,19 @@ EvaluableExpression evaluable_from_str(char *s){
     int i = 0;
     for (i = 0; i < len; i++) {
         char *part = get_word(s, &j);
-        Cell *cell = (Cell*)calloc(1, sizeof(cell));
+        Cell *cell = (Cell *)calloc(1, sizeof(cell));
         strcat(cell->type, cell_type(part));
         create_data_cell(cell, part);
         list_push_own(&eval.express, cell);
-        if(strcmp(cell->type, "var") == 0)
+        if (strcmp(cell->type, "var") == 0)
             update_list_of_variables(&eval.variables, cell->data);
     }
     return eval;
 }
 
-void read_variables(EvaluableExpression *eval){
+void read_variables(EvaluableExpression *eval) {
     Node *p_node = list_start(&eval->variables);
-    do{
+    do {
         Variable *p = list_iter_next(&p_node);
         printf("Enter values of %s: ", p->name);
         char s[256];
@@ -201,99 +203,115 @@ void read_variables(EvaluableExpression *eval){
     } while (p_node != NULL);
 }
 
-Complex addition(Complex a, Complex b){
+Complex addition(Complex a, Complex b) {
     Complex r = {a.re + b.re, a.im + b.im};
     return r;
 }
 
-Complex substraction(Complex a, Complex b){
+Complex substraction(Complex a, Complex b) {
     Complex r = {a.re - b.re, a.im - b.im};
     return r;
 }
 
-Complex multiplication(Complex a, Complex b){
+Complex multiplication(Complex a, Complex b) {
     Complex r = {(a.re * b.re - a.im * b.im), (a.re * b.im + a.im * b.re)};
     return r;
 }
 
-Complex division(Complex a, Complex b){
-    Complex r = {(a.re * b.re + a.im * b.im) / (SQR(a.re) + SQR(a.im)), (a.re * b.im - a.im * b.re) / (SQR(a.re) + SQR(a.im))};
+Complex division(Complex a, Complex b) {
+    Complex r = {(a.re * b.re + a.im * b.im) / (SQR(a.re) + SQR(a.im)),
+                 (a.re * b.im - a.im * b.re) / (SQR(a.re) + SQR(a.im))};
     return r;
 }
 
-Complex unary_minus(Complex a){
+Complex unary_minus(Complex a) {
     Complex r = {a.re * -1, a.im * -1};
     return r;
 }
 
-Complex natural_log(Complex a){
-    Complex r = {logf(sqrtf(SQR(a.re) + SQR(a.im))), atanf(a.im/a.re)};
+Complex natural_log(Complex a) {
+    Complex r = {logf(sqrtf(SQR(a.re) + SQR(a.im))), atanf(a.im / a.re)};
     return r;
 }
 
-void take_operands(Stack *stack, void **p1, void **p2, char *opr_s){
-    if(strcmp(opr_s, "+") == 0 || strcmp(opr_s, "-") == 0 || strcmp(opr_s, "*") == 0 || strcmp(opr_s, "/") == 0){
+void take_operands(Stack *stack, void **p1, void **p2, char *opr_s) {
+    if (strcmp(opr_s, "+") == 0 || strcmp(opr_s, "-") == 0 ||
+        strcmp(opr_s, "*") == 0 || strcmp(opr_s, "/") == 0) {
         *p1 = stk_pop(stack);
         *p2 = stk_pop(stack);
-    } else{
-        *p1 = stk_pop(stack); 
+    } else {
+        *p1 = stk_pop(stack);
     }
 }
 
-char *complex_to_string(void *p){
-    Complex a = *(Complex*)p;
+char *complex_to_string(void *p) {
+    Complex a = *(Complex *)p;
     static char r[256] = "";
     static char buff[256] = "";
     r[0] = '\0';
     a.im = fabsf(a.im);
     sprintf(buff, "%.2f%c", a.re, '\0');
-    strcat(r,  buff);
+    strcat(r, buff);
     sprintf(buff, "%+.2f%c%c", a.im, 'i', '\0');
-    strcat(r,  buff);
+    strcat(r, buff);
     return r;
 }
 
-void process_operator(EvaluableExpression *eval, char *opr_s){
+Complex perfome_binary_operation(Complex a, Complex b,
+                                 Complex operation(Complex, Complex)) {
+    return operation(a, b);
+}
+
+typedef Complex (*t_operators_func)(Complex, Complex);
+
+t_operators_func take_operation_by_operator(char *s) {
+    if (strcmp(s, "+") == 0) {
+        return addition;
+    } else if (strcmp(s, "-") == 0) {
+        return substraction;
+    } else if (strcmp(s, "*") == 0) {
+        return multiplication;
+    } else if (strcmp(s, "/") == 0) {
+        return division;
+    } else if (strcmp(s, "~") == 0) {
+        return unary_minus;
+    } else if (strcmp(s, "ln") == 0) {
+        return natural_log;
+    } else {
+        assert(0 && "Unknown operator");
+    }
+}
+
+void process_operator(EvaluableExpression *eval, char *opr_s) {
     Complex *pr;
     void *p1 = NULL, *p2 = NULL;
-    pr = (Complex*)calloc(1, sizeof(Complex));
+    pr = (Complex *)calloc(1, sizeof(Complex));
     take_operands(&eval->st, &p1, &p2, opr_s);
-    if(strcmp(opr_s, "+") == 0)
-        *pr = addition(*(Complex*)p1, *(Complex*)p2);
-    else if(strcmp(opr_s, "-") == 0)
-        *pr = substraction(*(Complex*)p1, *(Complex*)p2);
-    else if(strcmp(opr_s, "*") == 0)
-        *pr = multiplication(*(Complex*)p1, *(Complex*)p2);
-    else if(strcmp(opr_s, "/") == 0)
-        *pr = division(*(Complex*)p1, *(Complex*)p2);
-    else if(strcmp(opr_s, "~") == 0)
-        *pr = unary_minus(*(Complex*)p1);
-    else if(strcmp(opr_s, "ln") == 0)
-        *pr = natural_log(*(Complex*)p1);
+    *pr = take_operation_by_operator(opr_s)(*(Complex *)p1, *(Complex *)p2);
     stk_push(&eval->st, pr);
     list_push_own(&eval->inter_res, pr);
 }
 
-void *take_var_value_from_cell(Cell *cell){
+void *take_var_value_from_cell(Cell *cell) {
     Variable *p_var = cell->data;
-    return p_var->value; 
+    return p_var->value;
 }
 
-void process_cell(EvaluableExpression *eval, Cell *cell){
-    if(strcmp(cell->type, "opr") == 0)
+void process_cell(EvaluableExpression *eval, Cell *cell) {
+    if (strcmp(cell->type, "opr") == 0)
         process_operator(eval, cell->data);
-    else if(strcmp(cell->type, "con") == 0)
+    else if (strcmp(cell->type, "con") == 0)
         stk_push(&eval->st, cell->data);
-    else if(strcmp(cell->type, "var") == 0)
+    else if (strcmp(cell->type, "var") == 0)
         stk_push(&eval->st, take_var_value_from_cell(cell));
 }
 
-char *calculate_expres(EvaluableExpression *eval){
+char *calculate_expres(EvaluableExpression *eval) {
     static char r[1024] = "";
     r[0] = '\0';
-    Node *p_node = (Node*)calloc(1, sizeof(Node));
+    Node *p_node = (Node *)calloc(1, sizeof(Node));
     *p_node = *list_start(&eval->express);
-    do{
+    do {
         Cell *p_cell = list_iter_next(&p_node);
         process_cell(eval, p_cell);
     } while (p_node != NULL);
@@ -302,22 +320,22 @@ char *calculate_expres(EvaluableExpression *eval){
     return r;
 }
 
-int is_have_vars(EvaluableExpression *eval){
+int is_have_vars(EvaluableExpression *eval) {
     return !list_is_empty(&eval->variables);
 }
 
-int main(void){
+int main(void) {
     char s[256] = "";
     fgets(s, 256, stdin);
     RPN_express rpn = rpn_from_str(s);
     puts(rpn.expression);
     EvaluableExpression RPN = evaluable_from_str(rpn.expression);
-    if(is_have_vars(&RPN)){
-        while(1){
+    if (is_have_vars(&RPN)) {
+        while (1) {
             read_variables(&RPN);
             puts(calculate_expres(&RPN));
         }
-    } else{
+    } else {
         puts(calculate_expres(&RPN));
     }
     return 0;
