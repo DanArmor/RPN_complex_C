@@ -39,19 +39,18 @@ void list_push_ref(List *p_list, void *p_data){
     list_connect_node(p_list, p_node);
 }
 
-void *list_pop_front(List *p_list){
+Node *list_pop_front(List *p_list){
     Node *p_node = p_list->start;
     p_list->start = p_node->link;
-    return unpack_data(p_node);
+    p_node->link = NULL;
+    return p_node;
 }
 
 void list_clear(List *p_list){
     while(p_list->start != NULL){
-        Node *p_node = p_list->start;
-        p_list->start = p_node->link;
+        Node *p_node = list_pop_front(p_list);
         destroy_node(p_node);
     }
-    p_list->start = NULL;
 }
 
 void *list_take_by_index(List *p_list, int index){
