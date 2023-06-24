@@ -21,17 +21,19 @@ add_library(eval src/eval.c)
 
 target_link_libraries(list node)
 target_link_libraries(stack node)
-
+target_link_libraries(utils -lm)
 target_link_libraries(rpn utils)
+target_link_libraries(eval list stack utils)
 
 # Основная программа
 add_executable(main src/main.c)
-target_link_libraries(main list rpn stack node -lm)
+target_link_libraries(main list rpn stack node eval utils -lm)
 
 # Тесты
 # Список
 add_executable(list_test src/test/list_test.c)
 target_link_libraries(list_test list node -lcriterion)
+
 # Узел
 add_executable(node_test src/test/node_test.c)
 target_link_libraries(node_test node -lcriterion)
